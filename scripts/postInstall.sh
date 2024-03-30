@@ -40,7 +40,7 @@ LOGIN=`echo $LOGIN | tr '-' '_'`
 BCRYPT_PASSWORD=$(htpasswd -bnBC 10 "" ${ADMIN_PASSWORD} | tr -d ':\n');
 
 docker-compose exec -T streaming sh -c "RAILS_ENV=production bin/tootctl accounts create ${LOGIN} --email ${ADMIN_EMAIL} --confirmed --role Owner;"
-docker-compose exec -T db psql -d mastodon_production -U postgres -c "UPDATE users SET encrypted_password = '${BCRYPT_PASSWORD}' WHERE id = '1';"
+docker-compose exec -T db psql -d mastodon_production -U postgres -c "UPDATE users SET encrypted_password = '${BCRYPT_PASSWORD}', approved = true WHERE id = '1';"
 
 #fix streaming api
 sed -i 's@listen 443 ssl http2;@listen 443 ssl http2;\n\n  location ^~ /api/v1/streaming {\n    proxy_pass http://172.17.0.1:8834;\n    proxy_set_header Host $http_host;\n  }\n\n@g' /opt/elestio/nginx/conf.d/${DOMAIN}.conf
